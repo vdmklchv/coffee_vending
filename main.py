@@ -3,6 +3,7 @@ from error import ItemError, NotEnoughResourcesError, UnknownIngredientError
 
 MACHINE_ON = True
 money = 0
+total_profit = 0
 
 
 def show_menu() -> str:
@@ -25,11 +26,11 @@ def format_report_item(item: str, amount: float) -> str:
         return f"{item.title()}: {amount}{measurement}"
 
 
-def show_report(available_money: float) -> None:
+def show_report(total_profit: float) -> None:
     """Logic to show report"""
     for item in resources:
         print(format_report_item(item, resources[item]))
-    print(format_report_item("money", available_money))
+    print(format_report_item("money", total_profit))
 
 
 def get_drink_price(drink_name: str) -> float:
@@ -143,20 +144,23 @@ def calculate_change(needed_money: float, user_money: float) -> float:
 while MACHINE_ON:
     user_choice = show_menu()
     if user_choice.lower() == "report":
-        show_report(money)
+        show_report(total_profit)
     elif user_choice.lower() == "off":
         MACHINE_ON = False
         print("Turning off. Bye...")
     else:
-        money = calculate_user_money(get_user_money())
         try:
+            print(f"The cost of {user_choice} is ${get_drink_price(user_choice)}.")
+            money = calculate_user_money(get_user_money())
             if has_enough_money(money, user_choice):
                 make_drink(user_choice)
                 drink_price = MENU[user_choice]["cost"]
                 print(f"Here is ${calculate_change(drink_price, money):.2f} dollars in change.")
                 money = 0
                 print(f"Here is your {user_choice}, enjoy your drink!")
+                total_profit += drink_price
             else:
                 print("Sorry that's not enough money. Money refunded.")
+                money = 0
         except ItemError as e:
             print(e)
