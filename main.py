@@ -153,7 +153,7 @@ while MACHINE_ON:
             if has_enough_money(money, user_choice):
                 make_drink(user_choice)
                 drink_price = MENU[user_choice]["cost"]
-                print(f"Here is ${calculate_change(drink_price, money)} dollars in change.")
+                print(f"Here is ${calculate_change(drink_price, money):.2f} dollars in change.")
                 money = 0
                 print(f"Here is your {user_choice}, enjoy your drink!")
             else:
