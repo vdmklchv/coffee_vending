@@ -130,8 +130,8 @@ def make_drink(drink_name: str) -> None:
     try:
         if has_enough_resources_for(drink_name):
             withdraw_resources_for(drink_name)
-    except NotEnoughResourcesError as error:
-        print(error)
+        else:
+            raise NotEnoughResourcesError(f"Not enough resources to make this drink.")
     except UnknownIngredientError as error:
         print(error)
 
@@ -152,7 +152,7 @@ while MACHINE_ON:
         try:
             print(f"The cost of {user_choice} is ${get_drink_price(user_choice)}.")
             money = calculate_user_money(get_user_money())
-            if has_enough_money(money, user_choice):
+            if has_enough_money(money, user_choice) and has_enough_resources_for(user_choice):
                 make_drink(user_choice)
                 drink_price = MENU[user_choice]["cost"]
                 print(f"Here is ${calculate_change(drink_price, money):.2f} dollars in change.")
@@ -163,4 +163,6 @@ while MACHINE_ON:
                 print("Sorry that's not enough money. Money refunded.")
                 money = 0
         except ItemError as e:
+            print(e)
+        except NotEnoughResourcesError as e:
             print(e)
