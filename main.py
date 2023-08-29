@@ -32,26 +32,44 @@ def show_report(available_money: float) -> None:
     print(format_report_item("money", available_money))
 
 
+def get_drink_price(drink_name: str) -> float:
+    """returns price for chosen drink"""
+    if drink_name in MENU:
+        return MENU[drink_name]["cost"]
+    else:
+        raise ItemError("Unknown drink.")
+
+
+def get_drink_ingredients(drink_name: str) -> {str: int}:
+    """returns ingredients for chosen drink"""
+    if drink_name in MENU:
+        return MENU[drink_name]["ingredients"]
+    else:
+        raise ItemError("Unknown drink.")
+
+
 def has_enough_resources_for(drink_name: str) -> bool:
     """Return true if resources are enough to make a drink"""
     try:
-        resources_needed = MENU[drink_name]["ingredients"]
+        resources_needed = get_drink_ingredients(drink_name)
         for resource in resources_needed:
             if resource not in resources:
                 raise UnknownIngredientError("Ingredient not known.")
             if resources_needed[resource] > resources[resource]:
                 raise NotEnoughResourcesError(f"Sorry, not enough {resource}.")
         return True
-
-    except ItemError as e:
-        print(e)
+    except ItemError as error:
+        print(error)
 
 
 def withdraw_resources_for(drink_name: str) -> None:
     """Withdraws resources for drink from machine"""
-    required_resources = MENU[drink_name]["ingredients"]
-    for resource in required_resources:
-        resources[resource] -= MENU[drink_name]["ingredients"][resource]
+    try:
+        required_resources = get_drink_ingredients(drink_name)
+        for resource in required_resources:
+            resources[resource] -= MENU[drink_name]["ingredients"][resource]
+    except ItemError as error:
+        print(error)
 
 
 def insert_coins(coin_type: str) -> int:
@@ -99,9 +117,9 @@ def calculate_user_money(user_money: {str: {str: int}}) -> float:
 
 
 def has_enough_money(user_money: float, drink_type: str) -> bool:
-    """Returns true if user money is enough to buy chosen drink"""
+    """Returns True if user money is enough to buy chosen drink"""
     if drink_type in MENU:
-        return user_money >= MENU[drink_type]["cost"]
+        return user_money >= get_drink_price(drink_type)
     else:
         raise ItemError("Wrong item chosen.")
 
@@ -111,10 +129,10 @@ def make_drink(drink_name: str) -> None:
     try:
         if has_enough_resources_for(drink_name):
             withdraw_resources_for(drink_name)
-    except NotEnoughResourcesError as e:
-        print(e)
-    except UnknownIngredientError as e:
-        print(e)
+    except NotEnoughResourcesError as error:
+        print(error)
+    except UnknownIngredientError as error:
+        print(error)
 
 
 def calculate_change(needed_money: float, user_money: float) -> float:
@@ -142,5 +160,3 @@ while MACHINE_ON:
                 print("Sorry that's not enough money. Money refunded.")
         except ItemError as e:
             print(e)
-
-
